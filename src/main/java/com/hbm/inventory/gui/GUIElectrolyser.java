@@ -39,6 +39,12 @@ public class GUIElectrolyser extends GuiInfoContainer {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
 		drawTexturedModalRect(guiLeft, guiTop, 0, 0, xSize, ySize);
+		
+		int i = (int)((electrolyser.power * 89) / electrolyser.maxPower);
+		drawTexturedModalRect(guiLeft + 186, guiTop + 107 - i, 240, 90 - i, 16, i);
+		
+		if(i > 0)
+			drawTexturedModalRect(guiLeft + 190, guiTop + 4, 240, 90, 9, 12);
 	}
 	
 	@Override

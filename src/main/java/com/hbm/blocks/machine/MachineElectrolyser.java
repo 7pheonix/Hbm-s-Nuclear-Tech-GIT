@@ -7,6 +7,7 @@ import com.hbm.tileentity.machine.TileEntityElectrolyser;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -52,7 +53,14 @@ public class MachineElectrolyser extends BlockDummyable {
 		MultiblockHandlerXR.fillSpace(world, x + dir.offsetX * o , 3 + y + dir.offsetY * o, z + dir.offsetZ * o, new int[] {0, 0, -1, 1, -1, 1}, this, dir);
 		MultiblockHandlerXR.fillSpace(world, x + dir.offsetX * o , y + dir.offsetY * o, z + dir.offsetZ * o, new int[] {3, 0, -3, 3, -2, 2}, this, dir);
 		MultiblockHandlerXR.fillSpace(world, x + dir.offsetX * o , 3 + y + dir.offsetY * o, z + dir.offsetZ * o, new int[] {0, 0, -3, 3, -1, 1}, this, dir);
-
+		
+		ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
+		
+		this.makeExtra(world, x + dir.offsetX * o + dir.offsetX*4 + rot.offsetX*1, y, z + dir.offsetZ * o + dir.offsetZ*4 + rot.offsetZ*1);
+		this.makeExtra(world, x + dir.offsetX * o + dir.offsetX*4 + rot.offsetX*-1, y, z + dir.offsetZ * o + dir.offsetZ*4 + rot.offsetZ*-1);
+		this.makeExtra(world, x + dir.offsetX * o + dir.offsetX*-4 + rot.offsetX*1, y, z + dir.offsetZ * o + dir.offsetZ*-4 + rot.offsetZ*1);
+		this.makeExtra(world, x + dir.offsetX * o + dir.offsetX*-4 + rot.offsetX*-1, y, z + dir.offsetZ * o + dir.offsetZ*-4 + rot.offsetZ*-1);
+		
 	}
 
 	@Override

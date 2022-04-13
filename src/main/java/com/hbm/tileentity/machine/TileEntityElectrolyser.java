@@ -11,11 +11,13 @@ import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.Library;
 import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbm.inventory.recipes.ElectrolysisRecipes.*;
+
+import static com.hbm.inventory.recipes.ElectrolysisRecipes.Metals.*;
 
 import api.hbm.energy.IEnergyUser;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -33,6 +35,12 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	public int progressOre;
 	public static final int processOreTimeBase = 1000;
 	public int processOreTime;
+	
+	public int primaryMetalTank;
+	public Metals primaryMetal;
+	public int secondaryMetalTank;
+	public Metals secondaryMetal;
+	
 	
 	public FluidTank[] tanks;
 
@@ -56,14 +64,27 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			
 			this.tanks[0].updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
 			
+			ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset);
+			ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
+			this.trySubscribe(worldObj, xCoord + dir.offsetX * 5 + rot.offsetX * 1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, dir);
+			this.trySubscribe(worldObj, xCoord + dir.offsetX * -5 + rot.offsetX * 1, yCoord, zCoord + dir.offsetZ * -5 + rot.offsetZ * 1,  dir);
+			this.trySubscribe(worldObj, xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, dir);
+			this.trySubscribe(worldObj, xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * -5 + rot.offsetZ * -1, dir);
+			
+			this.power = Library.chargeTEFromItems(slots, 0, power, maxPower);
 			
 			NBTTagCompound data = new NBTTagCompound();
-			data.setLong("power", this.power);
-			data.setInteger("progressFluid", this.progressFluid);
-			data.setInteger("progressOre", this.progressOre);
-			data.setInteger("usage", this.usage);
-			data.setInteger("processFluidTime", this.processFluidTime);
-			data.setInteger("processOreTime", this.processOreTime);
+			data.setLong("power", power);
+			data.setInteger("progressFluid", progressFluid);
+			data.setInteger("progressOre", progressOre);
+			data.setInteger("usage", usage);
+			data.setInteger("processFluidTime", processFluidTime);
+			data.setInteger("processOreTime", processOreTime);
+			
+			data.setInteger("primaryMetalTank", primaryMetalTank);
+			data.setString("primaryMetal", primaryMetal.toString());
+			data.setInteger("secondaryMetalTank", secondaryMetalTank);
+			data.setString("secondaryMetal", secondaryMetal.toString());
 			this.networkPack(data, 50);
 			
 			fillFluidInit(tanks[1].getTankType());
@@ -78,10 +99,10 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset);
 		ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
 
-		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord-1, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord-1, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord-1, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord-1, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
 
 	}
 	
@@ -102,6 +123,37 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		}
 		
 		return bb;
+	}
+	
+	@Override
+	public void networkUnpack(NBTTagCompound nbt) {
+		this.power = nbt.getLong("power");
+		this.progressFluid = nbt.getInteger("progressFluid");
+		this.progressOre = nbt.getInteger("progressOre");
+		this.usage = nbt.getInteger("usage");
+		this.processFluidTime = nbt.getInteger("processFluidTime");
+		this.processOreTime = nbt.getInteger("processOreTime");
+		
+		this.primaryMetalTank = nbt.getInteger("primaryMetalTank");
+		this.primaryMetal = Metals.valueOf(nbt.getString("primaryMetal"));
+		this.secondaryMetalTank = nbt.getInteger("secondaryMetalTank");
+		this.secondaryMetal = Metals.valueOf(nbt.getString("secondaryMetal"));
+	}
+	
+	@Override
+	public void readFromNBT(NBTTagCompound nbt) {
+		super.readFromNBT(nbt);
+		for(int i = 0; i < 3; i++) {
+			tanks[i].readFromNBT(nbt, "tank"+(char)i);
+		}
+	}
+	
+	@Override
+	public void writeToNBT(NBTTagCompound nbt) {
+		super.writeToNBT(nbt);
+		for(int i = 0; i < 3; i++) {
+			tanks[i].writeToNBT(nbt, "tank"+(char)i);
+		}
 	}
 	
 	@Override
