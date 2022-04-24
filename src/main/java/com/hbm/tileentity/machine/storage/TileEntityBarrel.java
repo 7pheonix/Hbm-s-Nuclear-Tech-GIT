@@ -14,14 +14,13 @@ import com.hbm.lib.Library;
 import com.hbm.main.ModEventHandler;
 import com.hbm.tileentity.TileEntityMachineBase;
 
-import api.hbm.fluid.IFluidStandardSender;
+import api.hbm.fluid.IFluidStandardTransceiver;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.EnumSkyBlock;
-import net.minecraftforge.common.util.ForgeDirection;
 
-public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcceptor, IFluidSource, IFluidStandardSender {
+public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcceptor, IFluidSource, IFluidStandardTransceiver {
 	
 	public FluidTank tank;
 	public short mode = 0;
@@ -54,7 +53,15 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 			tank.unloadTank(4, 5, slots);
 			tank.updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
 			
-			this.sendFluid(tank.getTankType(), worldObj, xCoord, yCoord - 1, zCoord, ForgeDirection.DOWN);
+			if(this.mode == 1 || this.mode == 2) {
+				this.sendFluidToAll(tank.getTankType(), this);
+			}
+			
+			if(this.mode == 0 || this.mode == 1) {
+				this.subscribeToAllAround(tank.getTankType(), worldObj, xCoord, yCoord, zCoord);
+			} else {
+				this.unsubscribeToAllAround(tank.getTankType(), worldObj, xCoord, yCoord, zCoord);
+			}
 			
 			age++;
 			if(age >= 20)
@@ -121,7 +128,6 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 	}
 	
 	public void networkUnpack(NBTTagCompound data) {
-		
 		mode = data.getShort("mode");
 	}
 
@@ -207,6 +213,11 @@ public class TileEntityBarrel extends TileEntityMachineBase implements IFluidAcc
 
 	@Override
 	public FluidTank[] getSendingTanks() {
-		return new FluidTank[] {tank};
+		return (mode == 1 || mode == 2) ? new FluidTank[] {tank} : new FluidTank[0];
+	}
+
+	@Override
+	public FluidTank[] getReceivingTanks() {
+		return (mode == 0 || mode == 1) ? new FluidTank[] {tank} : new FluidTank[0];
 	}
 }

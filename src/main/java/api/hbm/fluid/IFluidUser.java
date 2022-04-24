@@ -53,13 +53,34 @@ public interface IFluidUser extends IFluidConnector {
 			PacketDispatcher.wrapper.sendToAllAround(new AuxParticlePacketNT(data, x + world.rand.nextDouble(), y + world.rand.nextDouble(), z + world.rand.nextDouble()), new TargetPoint(world.provider.dimensionId, x + 0.5, y + 0.5, z + 0.5, 25));
 		}
 	}
+	
+	public default void sendFluidToAll(FluidType type, TileEntity te) {
+		
+		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS) {
+			sendFluid(type, te.getWorldObj(), te.xCoord + dir.offsetX, te.yCoord + dir.offsetY, te.zCoord + dir.offsetZ, dir);
+		}
+	}
 
 	public default long getTotalFluidForSend(FluidType type) { return 0; }
 	public default void removeFluidForTransfer(FluidType type, long amount) { }
 	
-	public default void updateStandardPipes(FluidType type, World world, int x, int y, int z) {
+	public default void subscribeToAllAround(FluidType type, TileEntity te) {
+		subscribeToAllAround(type, te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord);
+	}
+	
+	public default void subscribeToAllAround(FluidType type, World world, int x, int y, int z) {
 		
 		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS)
 			this.trySubscribe(type, world, x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ, dir);
+	}
+	
+	public default void unsubscribeToAllAround(FluidType type, TileEntity te) {
+		unsubscribeToAllAround(type, te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord);
+	}
+	
+	public default void unsubscribeToAllAround(FluidType type, World world, int x, int y, int z) {
+		
+		for(ForgeDirection dir : ForgeDirection.VALID_DIRECTIONS)
+			this.tryUnsubscribe(type, world, x + dir.offsetX, y + dir.offsetY, z + dir.offsetZ);
 	}
 }
