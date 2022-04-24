@@ -3,10 +3,12 @@ package com.hbm.inventory.gui;
 import org.lwjgl.opengl.GL11;
 
 import com.hbm.inventory.container.ContainerElectrolyser;
+import com.hbm.inventory.recipes.ElectrolysisRecipes.Metals;
 import com.hbm.lib.RefStrings;
 import com.hbm.tileentity.machine.TileEntityElectrolyser;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -43,6 +45,50 @@ public class GUIElectrolyser extends GuiInfoContainer {
 		int i = (int)((electrolyser.power * 89) / electrolyser.maxPower);
 		drawTexturedModalRect(guiLeft + 186, guiTop + 107 - i, 240, 90 - i, 16, i);
 		
+		int j = (int)((electrolyser.progressFluid * 40) / electrolyser.maxProgress);
+		drawTexturedModalRect(guiLeft + 62, guiTop + 26, 228, 0, 12, j);
+		
+		int k = (int)((electrolyser.progressOre * 27) / electrolyser.maxProgress);
+		drawTexturedModalRect(guiLeft + 5, guiTop + 112, 213, 40, 27, k);
+		
+		int niter = (int)((electrolyser.niterTank * 34) / electrolyser.maxNiter);
+		drawTexturedModalRect(guiLeft + 37, guiTop + 120 - niter, 240, 148 - niter, 16, niter);
+		
+		Metals[] tanks = {electrolyser.primaryMetal, electrolyser.secondaryMetal};
+		int[] fill = {electrolyser.primaryMetalTank, electrolyser.secondaryMetalTank};
+		for(int x = 0; x < 2; x++) {
+			int height = 36;//(int)((fill[x] * 42) / electrolyser.maxMetal);
+			int colour = tanks[x].colour;
+			drawTexturedModalRect(guiLeft + 60 + x*38, guiTop + 128 - height, 222, 190 - height, 34, height);
+			
+			//drawRectangle(5, 5, 50, 50, colour);
+			/*GL11.glDisable(GL11.GL_CULL_FACE);
+			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+			
+			Tessellator tess = Tessellator.instance;
+			tess.startDrawingQuads();
+			tess.setColorRGBA_I(colour, 0xFFFFFF)
+			tess.addVertex(left + sizeX, top, this.zLevel);
+			tess.addVertex(left, top, this.zLevel);
+			tess.addVertex(left, top + sizeY, this.zLevel);
+			tess.addVertex(left + sizeX, top + sizeY, this.zLevel);
+			tess.draw();*/
+			if(height > 18) {
+				drawRectangle(78+x*38, 110, 16, 18, colour);
+				drawRectangle(60+x*38, 110-(height-18), 34, height-18, colour);
+			} else {
+				drawRectangle(78 + x*38, 128-height, 16, height, colour);
+			}
+			/*GL11.glDisable(GL11.GL_TEXTURE_2D);
+			drawRect(guiLeft+50, guiTop+50, guiLeft+55, guiTop+55, 0xFFFFFF);
+			GL11.glEnable(GL11.GL_TEXTURE_2D);
+			
+			GL11.glDisable(GL11.GL_BLEND);
+			GL11.glEnable(GL11.GL_CULL_FACE);
+			*/
+		}
+		
 		if(i > 0)
 			drawTexturedModalRect(guiLeft + 190, guiTop + 4, 240, 90, 9, 12);
 	}
@@ -53,5 +99,35 @@ public class GUIElectrolyser extends GuiInfoContainer {
 
 		this.fontRendererObj.drawString(name, (this.xSize / 2 - this.fontRendererObj.getStringWidth(name) / 2) - 16, 7, 0xffffff);
 		this.fontRendererObj.drawString(I18n.format("container.inventory"), 8, this.ySize - 94, 4210752);
+	}
+	
+	private void drawRectangle(int x, int y, int width, int height, int colour) {
+		GL11.glDisable(GL11.GL_CULL_FACE);
+		GL11.glEnable(GL11.GL_BLEND);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
+		GL11.glDisable(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_ALPHA_TEST);
+		
+		Tessellator tess = Tessellator.instance;
+		tess.startDrawingQuads();
+		tess.setColorRGBA_I(colour, 0xFFFFFF);
+		tess.addVertex(guiLeft + x, guiTop + y, this.zLevel);
+		tess.addVertex(guiLeft + x + width, guiTop + y, this.zLevel);
+		tess.addVertex(guiLeft + x + width, guiTop + y + height, this.zLevel);
+		tess.addVertex(guiLeft + x, guiTop + y + height, this.zLevel);
+		tess.draw();
+		/*if(height > 18) {
+			drawRect(78, 110, 94, 128, colour);
+			drawRect(60, 110-(height-18), 94, 110, colour);
+		} else {
+			drawRect(guiLeft+78, guiTop+128-height, guiLeft+94, guiTop+128, 0xFFFFFF);
+		}*/
+		//drawRect(guiLeft+50, guiTop+50, guiLeft+55, guiTop+55, 0xFFFFFF);
+		
+		GL11.glEnable(GL11.GL_ALPHA_TEST);
+		GL11.glEnable(GL11.GL_TEXTURE_2D);
+		GL11.glDisable(GL11.GL_BLEND);
+		GL11.glEnable(GL11.GL_CULL_FACE);
+		
 	}
 }

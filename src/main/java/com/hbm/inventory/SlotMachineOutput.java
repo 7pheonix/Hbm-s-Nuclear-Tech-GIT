@@ -47,6 +47,8 @@ public class SlotMachineOutput extends Slot {
 			player.triggerAchievement(MainRegistry.achSILEX);
 		if(item == ModItems.nugget_technetium)
 			player.triggerAchievement(MainRegistry.achTechnetium);
+		if(item == Item.getItemFromBlock(ModBlocks.machine_electrolyser))
+			player.triggerAchievement(MainRegistry.achElectrolysis);
 		if(item == Item.getItemFromBlock(ModBlocks.watz_core))
 			player.triggerAchievement(MainRegistry.achWatz);
 		if(item == ModItems.nugget_bismuth)

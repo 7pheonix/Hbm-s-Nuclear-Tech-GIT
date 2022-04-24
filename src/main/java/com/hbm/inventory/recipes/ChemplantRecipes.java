@@ -353,8 +353,8 @@ public class ChemplantRecipes {
 		recipes.add(new ChemRecipe(78, "HEAVY_ELECTROLYSIS", 150)
 				.inputFluids(new FluidStack(Fluids.HEAVYWATER, 8000))
 				.outputFluids(
-						new FluidStack(Fluids.DEUTERIUM, 400),
-						new FluidStack(Fluids.OXYGEN, 400)));
+						new FluidStack(Fluids.DEUTERIUM, 800),
+						new FluidStack(Fluids.OXYGEN, 800)));
 		recipes.add(new ChemRecipe(80, "EPEARL", 100)
 				.inputItems(new OreDictStack(DIAMOND.dust(), 1))
 				.inputFluids(new FluidStack(Fluids.XPJUICE, 500))

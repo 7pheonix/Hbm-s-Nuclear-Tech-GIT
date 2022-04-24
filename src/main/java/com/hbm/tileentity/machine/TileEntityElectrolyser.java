@@ -7,11 +7,14 @@ import com.hbm.blocks.BlockDummyable;
 import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.interfaces.IFluidSource;
 import com.hbm.inventory.FluidTank;
+import com.hbm.inventory.UpgradeManager;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.Library;
 import com.hbm.tileentity.TileEntityMachineBase;
 import com.hbm.inventory.recipes.ElectrolysisRecipes.*;
+import com.hbm.items.ModItems;
+import com.hbm.items.machine.ItemMachineUpgrade.UpgradeType;
 
 import static com.hbm.inventory.recipes.ElectrolysisRecipes.Metals.*;
 
@@ -29,18 +32,24 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	public static final int usageBase = 10000;
 	public int usage;
 	
+	public static final int maxProgress = 1000;
 	public int progressFluid;
-	public static final int processFluidTimeBase = 100;
+	public static final int processFluidTimeBase = 500;
 	public int processFluidTime;
 	public int progressOre;
 	public static final int processOreTimeBase = 1000;
 	public int processOreTime;
 	
-	public int primaryMetalTank;
-	public Metals primaryMetal;
-	public int secondaryMetalTank;
-	public Metals secondaryMetal;
+	public float effectMultiplier;
 	
+	public static final int maxMetal = 256000;
+	public int primaryMetalTank;
+	public Metals primaryMetal = COPPER;
+	public int secondaryMetalTank;
+	public Metals secondaryMetal = COBALT;
+	
+	public static final int maxNiter = 64000;
+	public int niterTank;
 	
 	public FluidTank[] tanks;
 
@@ -73,8 +82,39 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			
 			this.power = Library.chargeTEFromItems(slots, 0, power, maxPower);
 			
+			UpgradeManager.eval(slots, 1, 2);
+			int speed = Math.min(UpgradeManager.getLevel(UpgradeType.SPEED), 3);
+			int power = Math.min(UpgradeManager.getLevel(UpgradeType.POWER), 3);
+			int effect = Math.min(UpgradeManager.getLevel(UpgradeType.EFFECT), 3);
+
+			this.processFluidTime = processFluidTimeBase - (processFluidTimeBase / 4) * speed;
+			this.processOreTime = processOreTimeBase - (processOreTimeBase / 4) * speed;
+			this.usage = usageBase - (usageBase / 4) * power;
+			this.effectMultiplier = 1 + (effect*0.2F);
+			
+			tanks[0].setType(3, 4, slots);
+			tanks[0].loadTank(5, 5, slots);
+			tanks[1].unloadTank(7, 8, slots);
+			tanks[2].unloadTank(9, 10, slots);
+			
+			updateTanks();
+			
+			if(slots[15] != null) {
+				if(slots[15].getItem() == ModItems.niter && maxNiter - niterTank >= 100) {
+					niterTank += 100;
+					System.out.println(niterTank);
+					//slots[9] = slots[9].splitStack(slots[9].stackSize - 1);
+					this.decrStackSize(15, 1);
+				}
+			}
+			if(niterTank < 0) {
+				niterTank = 0;
+			} else if (niterTank > maxNiter) {
+				niterTank = maxNiter;
+			}
+			
 			NBTTagCompound data = new NBTTagCompound();
-			data.setLong("power", power);
+			data.setLong("power", this.power);
 			data.setInteger("progressFluid", progressFluid);
 			data.setInteger("progressOre", progressOre);
 			data.setInteger("usage", usage);
@@ -85,6 +125,8 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			data.setString("primaryMetal", primaryMetal.toString());
 			data.setInteger("secondaryMetalTank", secondaryMetalTank);
 			data.setString("secondaryMetal", secondaryMetal.toString());
+			
+			data.setFloat("effectMultiplier", effectMultiplier);
 			this.networkPack(data, 50);
 			
 			fillFluidInit(tanks[1].getTankType());
@@ -93,6 +135,11 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 
 	}
 	
+	private void updateTanks() {
+		//FluidType type = tanks[0].getTankType();
+		
+	}
+
 	@Override
 	public void fillFluidInit(FluidType type) {
 		
@@ -115,10 +162,10 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			bb = AxisAlignedBB.getBoundingBox(
 					xCoord - 3,
 					yCoord - 0,
-					zCoord - 4,
+					zCoord - 5,
 					xCoord + 3,
 					yCoord + 4,
-					zCoord + 4
+					zCoord + 5
 					);
 		}
 		
@@ -138,6 +185,8 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		this.primaryMetal = Metals.valueOf(nbt.getString("primaryMetal"));
 		this.secondaryMetalTank = nbt.getInteger("secondaryMetalTank");
 		this.secondaryMetal = Metals.valueOf(nbt.getString("secondaryMetal"));
+		
+		this.effectMultiplier = nbt.getFloat("effectMultiplier");
 	}
 	
 	@Override

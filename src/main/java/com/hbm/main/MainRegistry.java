@@ -209,6 +209,7 @@ public class MainRegistry {
 	public static Achievement achAcidizer;
 	public static Achievement achRadium;
 	public static Achievement achTechnetium;
+	public static Achievement achElectrolysis;
 	public static Achievement achZIRNOXBoom;
 	public static Achievement achChicagoPile;
 	public static Achievement achSILEX;
@@ -840,6 +841,7 @@ public class MainRegistry {
 		achAcidizer = new Achievement("achievement.acidizer", "acidizer", 11, 5, new ItemStack(ModBlocks.machine_crystallizer), achDesh).initIndependentStat().registerStat();
 		achRadium = new Achievement("achievement.radium", "radium", 13, -4, ModItems.coffee_radium, achCentrifuge).initIndependentStat().setSpecial().registerStat();
 		achTechnetium = new Achievement("achievement.technetium", "technetium", 15, -2, ModItems.ingot_tcalloy, achCentrifuge).initIndependentStat().registerStat();
+		achElectrolysis = new Achievement("achievement.electrolysis", "electrolysis", 17, -3, new ItemStack(ModBlocks.machine_electrolyser), achTechnetium).initIndependentStat().registerStat().setSpecial();
 		achZIRNOXBoom = new Achievement("achievement.ZIRNOXBoom", "ZIRNOXBoom", 14, -1, ModItems.debris_element, achCentrifuge).initIndependentStat().setSpecial().registerStat();
 		achChicagoPile = new Achievement("achievement.chicagoPile", "chicagoPile", 13, 0, ModItems.pile_rod_plutonium, achCentrifuge).initIndependentStat().registerStat();
 		achSILEX = new Achievement("achievement.SILEX", "SILEX", 12, 7, new ItemStack(ModBlocks.machine_silex), achAcidizer).initIndependentStat().registerStat();
@@ -902,6 +904,7 @@ public class MainRegistry {
 				achAcidizer,
 				achRadium,
 				achTechnetium,
+				achElectrolysis,
 				achZIRNOXBoom,
 				achChicagoPile,
 				achSILEX,
@@ -966,6 +969,8 @@ public class MainRegistry {
 		LiquefactionRecipes.register();
 		SolidificationRecipes.register();
 		FuelPoolRecipes.register();
+		ElectrolysisRecipes.registerFluidRecipes();
+		ElectrolysisRecipes.registerOreRecipes();
 
 		TileEntityNukeCustom.registerBombItems();
 		ArmorUtil.register();
