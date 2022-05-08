@@ -11,6 +11,7 @@ import net.minecraft.client.particle.EntityFX;
 import net.minecraft.client.particle.EntityFireworkSparkFX;
 import net.minecraft.client.particle.EntityFlameFX;
 import net.minecraft.client.particle.EntityReddustFX;
+import net.minecraft.client.renderer.entity.RenderMinecart;
 import net.minecraft.client.renderer.entity.RenderSnowball;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.entity.Entity;
@@ -40,6 +41,7 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockBobble.TileEntityBobble;
 import com.hbm.blocks.generic.BlockEmitter.TileEntityEmitter;
 import com.hbm.blocks.generic.BlockLoot.TileEntityLoot;
+import com.hbm.entity.cart.*;
 import com.hbm.entity.effect.*;
 import com.hbm.entity.grenade.*;
 import com.hbm.entity.item.*;
@@ -73,6 +75,7 @@ import com.hbm.render.util.RenderInfoSystem;
 import com.hbm.render.util.RenderInfoSystem.InfoEntry;
 import com.hbm.sound.AudioWrapper;
 import com.hbm.sound.AudioWrapperClient;
+import com.hbm.sound.AudioWrapperClientStartStop;
 import com.hbm.sound.nt.ISoundSourceTE;
 import com.hbm.sound.nt.SoundWrapper;
 import com.hbm.sound.nt.SoundWrapperClient;
@@ -621,6 +624,9 @@ public class ClientProxy extends ServerProxy {
 	    RenderingRegistry.registerEntityRenderingHandler(EntitySpear.class, new RenderSpear());
 		//minecarts
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartTest.class, new RenderMinecartTest());
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartCrate.class, new RenderMinecart());
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartDestroyer.class, new RenderNeoCart());
+		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartOre.class, new RenderNeoCart());
 		//items
 		RenderingRegistry.registerEntityRenderingHandler(EntityMovingItem.class, new RenderMovingItem());
 		RenderingRegistry.registerEntityRenderingHandler(EntityTNTPrimedBase.class, new RenderTNTPrimedBase());
@@ -1490,12 +1496,14 @@ public class ClientProxy extends ServerProxy {
 		}
 		
 		if("tower".equals(type)) {
-			ParticleCoolingTower fx = new ParticleCoolingTower(man, world, x, y, z);
-			fx.setLift(data.getFloat("lift"));
-			fx.setBaseScale(data.getFloat("base"));
-			fx.setMaxScale(data.getFloat("max"));
-			fx.setLife(data.getInteger("life") / (particleSetting + 1));
-			Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+			if(particleSetting == 0 || (particleSetting == 1 && rand.nextBoolean())) {
+				ParticleCoolingTower fx = new ParticleCoolingTower(man, world, x, y, z);
+				fx.setLift(data.getFloat("lift"));
+				fx.setBaseScale(data.getFloat("base"));
+				fx.setMaxScale(data.getFloat("max"));
+				fx.setLife(data.getInteger("life") / (particleSetting + 1));
+				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
+			}
 		}
 		
 		if("deadleaf".equals(type)) {
@@ -1613,6 +1621,13 @@ public class ClientProxy extends ServerProxy {
 	public AudioWrapper getLoopedSound(String sound, float x, float y, float z, float volume, float pitch) {
 		
 		AudioWrapperClient audio = new AudioWrapperClient(new ResourceLocation(sound));
+		audio.updatePosition(x, y, z);
+		return audio;
+	}
+	
+	@Override
+	public AudioWrapper getLoopedSoundStartStop(World world, String sound, String start, String stop, float x, float y, float z, float volume, float pitch) {
+		AudioWrapperClientStartStop audio = new AudioWrapperClientStartStop(world, sound == null ? null : new ResourceLocation(sound), start, stop, volume);
 		audio.updatePosition(x, y, z);
 		return audio;
 	}

@@ -8,6 +8,7 @@ import com.hbm.sound.nt.SoundWrapper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 
 public class ServerProxy {
 
@@ -19,6 +20,7 @@ public class ServerProxy {
 	public static final int ID_JETPACK = 4;
 	public static final int ID_HUD = 5;
 	public static final int ID_DETONATOR = 6;
+	public static final int ID_FLUID_ID = 7;
 	
 	public void registerRenderInfo() { }
 	public void registerTileEntitySpecialRenderer() { }
@@ -35,6 +37,7 @@ public class ServerProxy {
 	public void registerMissileItems() { }
 
 	public AudioWrapper getLoopedSound(String sound, float x, float y, float z, float volume, float pitch) { return null; }
+	public AudioWrapper getLoopedSoundStartStop(World world, String sound, String start, String stop, float x, float y, float z, float volume, float pitch) { return null; }
 	
 	public void playSound(String sound, Object data) { }
 

@@ -3,6 +3,8 @@ package com.hbm.handler;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockBobble.TileEntityBobble;
 import com.hbm.blocks.machine.NTMAnvil;
+import com.hbm.entity.cart.EntityMinecartCrate;
+import com.hbm.entity.cart.EntityMinecartDestroyer;
 import com.hbm.interfaces.Spaghetti;
 import com.hbm.inventory.container.*;
 import com.hbm.inventory.gui.*;
@@ -858,10 +860,10 @@ public class GUIHandler implements IGuiHandler {
 		// NON-TE CONTAINERS
 
 		switch(ID) {
-		case ModItems.guiID_item_box:
-			return new ContainerLeadBox(player, player.inventory, new InventoryLeadBox(player.getHeldItem()));
-		case ModItems.guiID_item_book:
-			return new ContainerBook(player.inventory);
+		case ModItems.guiID_item_box: return new ContainerLeadBox(player, player.inventory, new InventoryLeadBox(player.getHeldItem()));
+		case ModItems.guiID_item_book: return new ContainerBook(player.inventory);
+		case ModItems.guiID_cart_crate: return new ContainerCrateSteel(player.inventory, (EntityMinecartCrate)player.worldObj.getEntityByID(x));
+		case ModItems.guiID_cart_destroyer: return new ContainerCartDestroyer(player.inventory, (EntityMinecartDestroyer)player.worldObj.getEntityByID(x));
 		}
 
 		return null;
@@ -1723,6 +1725,11 @@ public class GUIHandler implements IGuiHandler {
 			return new GUIScreenBobble((TileEntityBobble) world.getTileEntity(x, y, z));
 		case ModItems.guiID_item_holo_image:
 			return new GUIScreenHolotape();
+		case ModItems.guiID_item_fluid:
+			return new GUIScreenFluid(player);
+			
+		case ModItems.guiID_cart_crate: return new GUICrateSteel(player.inventory, (EntityMinecartCrate) player.worldObj.getEntityByID(x));
+		case ModItems.guiID_cart_destroyer: return new GUICartDestroyer(player.inventory, (EntityMinecartDestroyer) player.worldObj.getEntityByID(x));
 		}
 		return null;
 	}

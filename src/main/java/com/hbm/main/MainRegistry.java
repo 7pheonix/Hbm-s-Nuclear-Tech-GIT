@@ -14,7 +14,6 @@ import net.minecraft.stats.Achievement;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.WeightedRandomChestContent;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.AchievementPage;
 import net.minecraftforge.common.ChestGenHooks;
 import net.minecraftforge.common.ForgeChunkManager;
@@ -30,6 +29,7 @@ import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.Metadata;
 import cpw.mods.fml.common.ModMetadata;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -40,9 +40,9 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.ImmutableList;
 import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockMotherOfAllOres;
-import com.hbm.blocks.generic.BlockNTMFlower.EnumFlowerType;
 import com.hbm.config.*;
 import com.hbm.creativetabs.*;
+import com.hbm.entity.cart.*;
 import com.hbm.entity.effect.*;
 import com.hbm.entity.grenade.*;
 import com.hbm.entity.item.*;
@@ -62,6 +62,7 @@ import com.hbm.inventory.*;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.recipes.*;
 import com.hbm.inventory.recipes.anvil.AnvilRecipes;
+import com.hbm.inventory.recipes.loader.SerializableRecipe;
 import com.hbm.items.ModItems;
 import com.hbm.lib.HbmWorld;
 import com.hbm.lib.Library;
@@ -174,6 +175,9 @@ public class MainRegistry {
 	public static Achievement achStratum;
 	public static Achievement achOmega12;
 	public static Achievement achSomeWounds;
+	public static Achievement achSlimeball;
+	public static Achievement achSulfuric;
+	public static Achievement achWitchtaunter;
 	public static Achievement bobHidden;
 	public static Achievement horizonsStart;
 	public static Achievement horizonsEnd;
@@ -224,13 +228,9 @@ public class MainRegistry {
 	
 	public static int generalOverride = 0;
 	public static int polaroidID = 1;
-
-	public static int x;
-	public static int y;
-	public static int z;
-	public static long time;
 	
 	public static long startupTime = 0;
+	public static File configDir;
 
 	Random rand = new Random();
 
@@ -238,6 +238,7 @@ public class MainRegistry {
 	public void PreLoad(FMLPreInitializationEvent PreEvent) {
 		
 		startupTime = System.currentTimeMillis();
+		configDir = PreEvent.getModConfigurationDirectory();
 		
 		logger.info("Let us celebrate the fact that the logger finally works again!");
 
@@ -439,18 +440,18 @@ public class MainRegistry {
 		EntityRegistry.registerModEntity(EntityGrenadeBurst.class, "entity_grenade_burst", 115, this, 250, 1, true);
 		EntityRegistry.registerModEntity(EntityBurningFOEQ.class, "entity_burning_foeq", 116, this, 1000, 1, true);
 		EntityRegistry.registerModEntity(EntityGrenadeIFGeneric.class, "entity_grenade_ironshod", 117, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFHE.class, "entity_grenade_ironshod", 118, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFBouncy.class, "entity_grenade_ironshod", 119, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFSticky.class, "entity_grenade_ironshod", 120, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFImpact.class, "entity_grenade_ironshod", 121, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFIncendiary.class, "entity_grenade_ironshod", 122, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFToxic.class, "entity_grenade_ironshod", 123, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFConcussion.class, "entity_grenade_ironshod", 124, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFBrimstone.class, "entity_grenade_ironshod", 125, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFMystery.class, "entity_grenade_ironshod", 126, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFSpark.class, "entity_grenade_ironshod", 127, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFHopwire.class, "entity_grenade_ironshod", 128, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeIFNull.class, "entity_grenade_ironshod", 129, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFHE.class, "entity_grenade_ironshod_he", 118, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFBouncy.class, "entity_grenade_ironshod_bouncy", 119, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFSticky.class, "entity_grenade_ironshod_sticky", 120, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFImpact.class, "entity_grenade_ironshod_impact", 121, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFIncendiary.class, "entity_grenade_ironshod_fire", 122, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFToxic.class, "entity_grenade_ironshod_toxic", 123, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFConcussion.class, "entity_grenade_ironshod_con", 124, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFBrimstone.class, "entity_grenade_ironshod_brim", 125, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFMystery.class, "entity_grenade_ironshod_m", 126, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFSpark.class, "entity_grenade_ironshod_s", 127, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFHopwire.class, "entity_grenade_ironshod_hopwire", 128, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeIFNull.class, "entity_grenade_ironshod_null", 129, this, 250, 1, true);
 		EntityRegistry.registerModEntity(EntityFallingNuke.class, "entity_falling_bomb", 130, this, 1000, 1, true);
 		EntityRegistry.registerModEntity(EntityBulletBase.class, "entity_bullet_mk2", 131, this, 250, 1, true);
 		EntityRegistry.registerModEntity(EntityMinerRocket.class, "entity_miner_lander", 132, this, 1000, 1, true);
@@ -488,8 +489,11 @@ public class MainRegistry {
 		EntityRegistry.registerModEntity(EntitySiegeLaser.class, "entity_ntm_siege_laser", 164, this, 1000, 1, true);
 		EntityRegistry.registerModEntity(EntitySiegeDropship.class, "entity_ntm_siege_dropship", 165, this, 1000, 1, true);
 		EntityRegistry.registerModEntity(EntityTNTPrimedBase.class, "entity_ntm_tnt_primed", 166, this, 1000, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeBouncyGeneric.class, "entity_grenade_generic", 168, this, 250, 1, true);
-		EntityRegistry.registerModEntity(EntityGrenadeImpactGeneric.class, "entity_grenade_generic", 169, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeBouncyGeneric.class, "entity_grenade_bouncy_generic", 168, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityGrenadeImpactGeneric.class, "entity_grenade_impact_generic", 169, this, 250, 1, true);
+		EntityRegistry.registerModEntity(EntityMinecartCrate.class, "entity_ntm_cart_crate", 170, this, 250, 1, false);
+		EntityRegistry.registerModEntity(EntityMinecartDestroyer.class, "entity_ntm_cart_crate", 171, this, 250, 1, false);
+		EntityRegistry.registerModEntity(EntityMinecartOre.class, "entity_ntm_cart_ore", 172, this, 250, 1, false);
 
 		EntityRegistry.registerGlobalEntityID(EntityNuclearCreeper.class, "entity_mob_nuclear_creeper", EntityRegistry.findGlobalUniqueEntityId(), 0x204131, 0x75CE00);
 		EntityRegistry.registerGlobalEntityID(EntityTaintedCreeper.class, "entity_mob_tainted_creeper", EntityRegistry.findGlobalUniqueEntityId(), 0x813b9b, 0xd71fdd);
@@ -509,7 +513,7 @@ public class MainRegistry {
 		EntityRegistry.registerModEntity(EntitySiegeTunneler.class, "entity_meme_tunneler", 167, this, 1000, 1, true); //how about you have a taste of my fucking scrotum?
 		//EntityRegistry.registerGlobalEntityID(EntitySiegeTunneler.class, "entity_meme_tunneler", EntityRegistry.findGlobalUniqueEntityId(), 0x303030, 0x008080);
 
-		EntityRegistry.registerModEntity(EntitySPV.class, "entity_self_propelled_vehicle_mark_1", 160, this, 1000, 1, true);
+		EntityRegistry.registerModEntity(EntitySPV.class, "entity_self_propelled_vehicle_mark_1", 1600, this, 1000, 1, true);
 
 		ForgeChunkManager.setForcedChunkLoadingCallback(this, new LoadingCallback() {
 
@@ -799,6 +803,10 @@ public class MainRegistry {
 		achStratum = new Achievement("achievement.stratum", "stratum", -4, -2, new ItemStack(ModBlocks.stone_gneiss), null).initIndependentStat().setSpecial().registerStat();
 		achOmega12 = new Achievement("achievement.omega12", "omega12", 17, -1, ModItems.particle_digamma, null).initIndependentStat().setSpecial().registerStat();
 
+		achWitchtaunter = new Achievement("achievement.witchtaunter", "witchtaunter", -8, 7, ModItems.ammo_4gauge_vampire, null).initIndependentStat().setSpecial().registerStat();
+		achSlimeball = new Achievement("achievement.slimeball", "slimeball", -10, 6, Items.slime_ball, null).initIndependentStat().registerStat();
+		achSulfuric = new Achievement("achievement.sulfuric", "sulfuric", -10, 8, ModItems.bucket_sulfuric_acid, achSlimeball).initIndependentStat().setSpecial().registerStat();
+
 		bobHidden = new Achievement("achievement.hidden", "hidden", 15, -4, ModItems.gun_dampfmaschine, null).initIndependentStat().registerStat();
 
 		horizonsStart = new Achievement("achievement.horizonsStart", "horizonsStart", -5, 4, ModItems.sat_gerald, null).initIndependentStat().registerStat();
@@ -874,6 +882,9 @@ public class MainRegistry {
 				horizonsBonus,
 				achRadPoison,
 				achRadDeath,
+				achWitchtaunter,
+				achSlimeball,
+				achSulfuric,
 				bossCreeper,
 				bossMeltdown,
 				bossMaskman,
@@ -954,9 +965,9 @@ public class MainRegistry {
 		TileEntityNukeFurnace.registerFuels();
 		BreederRecipes.registerRecipes();
 		AssemblerRecipes.loadRecipes();
-		ChemplantRecipes.register();
+		//ChemplantRecipes.register(); moved to SerializableRecipe
 		CyclotronRecipes.register();
-		HadronRecipes.register();
+		//HadronRecipes.register(); moved to SerializableRecipe
 		MagicRecipes.register();
 		SILEXRecipes.register();
 		AnvilRecipes.register();
@@ -968,9 +979,13 @@ public class MainRegistry {
 		GasCentrifugeRecipes.register();
 		LiquefactionRecipes.register();
 		SolidificationRecipes.register();
-		FuelPoolRecipes.register();
-		ElectrolysisRecipes.registerFluidRecipes();
 		ElectrolysisRecipes.registerOreRecipes();
+		ElectrolysisRecipes.registerFluidRecipes();
+		FuelPoolRecipes.register();
+
+		//the good stuff
+		SerializableRecipe.registerAllHandlers();
+		SerializableRecipe.initialize();
 
 		TileEntityNukeCustom.registerBombItems();
 		ArmorUtil.register();

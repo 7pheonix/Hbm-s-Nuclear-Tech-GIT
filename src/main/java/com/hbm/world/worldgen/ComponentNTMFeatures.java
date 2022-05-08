@@ -6,13 +6,9 @@ import com.hbm.blocks.ModBlocks;
 import com.hbm.blocks.generic.BlockBobble.BobbleType;
 import com.hbm.blocks.generic.BlockBobble.TileEntityBobble;
 import com.hbm.lib.HbmChestContents;
-import com.hbm.tileentity.machine.TileEntityLockableBase;
 import com.hbm.tileentity.machine.storage.TileEntityCrateIron;
 import com.hbm.util.LootGenerator;
-import com.hbm.world.worldgen.ComponentNTMFeatures.LabTiles;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockSandStone;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemDoor;
 import net.minecraft.nbt.NBTTagCompound;
@@ -50,6 +46,10 @@ public class ComponentNTMFeatures {
 		private boolean hasPlacedChest;
 		
 		private static ComponentNTMFeatures.Sandstone RandomSandstone = new ComponentNTMFeatures.Sandstone();
+		
+		public NTMHouse1() {
+			super();
+		}
 		
 		/** Constructor for this feature; takes coordinates for bounding box */
 		protected NTMHouse1(Random rand, int minX, int minY, int minZ) {
@@ -148,6 +148,10 @@ public class ComponentNTMFeatures {
 		private static ComponentNTMFeatures.Sandstone RandomSandstone = new ComponentNTMFeatures.Sandstone();
 		
 		private boolean[] hasPlacedLoot = new boolean[2];
+		
+		public NTMHouse2() {
+			super();
+		}
 		
 		protected NTMHouse2(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 15, 5, 9);
@@ -299,6 +303,10 @@ public class ComponentNTMFeatures {
 		
 		private boolean[] hasPlacedLoot = new boolean[2];
 		
+		public NTMLab1() {
+			super();
+		}
+		
 		/** Constructor for this feature; takes coordinates for bounding box */
 		protected NTMLab1(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 9, 4, 7);
@@ -432,6 +440,10 @@ public class ComponentNTMFeatures {
 		private static ComponentNTMFeatures.LabTiles RandomLabTiles = new ComponentNTMFeatures.LabTiles();
 		
 		private boolean[] hasPlacedLoot = new boolean[2];
+		
+		public NTMLab2() {
+			super();
+		}
 
 		protected NTMLab2(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 12, 11, 8);
@@ -582,7 +594,6 @@ public class ComponentNTMFeatures {
 			
 			this.fillWithMetadataBlocks(world, box, 2, 1, 2, 2, 1, featureSizeZ - 2, ModBlocks.steel_grate, 7, Blocks.air, 0, false);
 			this.placeBlockAtCurrentPosition(world, ModBlocks.vitrified_barrel, 0, 2, 2, 2, box);
-			this.fillWithBlocks(world, box, 2, 2, 4, 2, 3, featureSizeZ - 2, ModBlocks.vitrified_barrel, Blocks.air, false);
 			this.fillWithMetadataBlocks(world, box, 3, 1, 2, 3, 3, 2, ModBlocks.steel_wall, westMeta, Blocks.air, 0, false);
 			this.fillWithMetadataBlocks(world, box, 3, 1, 4, 3, 3, 4, ModBlocks.steel_wall, westMeta, Blocks.air, 0, false);
 			this.fillWithMetadataBlocks(world, box, 3, 1, featureSizeZ - 2, 3, 3, featureSizeZ - 2, ModBlocks.steel_wall, westMeta, Blocks.air, 0, false);
@@ -611,6 +622,10 @@ public class ComponentNTMFeatures {
 		private static ComponentNTMFeatures.SuperConcrete RandomSuperConcrete = new ComponentNTMFeatures.SuperConcrete();
 		
 		private boolean hasPlacedLoot;
+		
+		public NTMWorkshop1() {
+			super();
+		}
 		
 		protected NTMWorkshop1(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 10, 6, 8);
@@ -766,6 +781,10 @@ public class ComponentNTMFeatures {
 		
 		private static ComponentNTMFeatures.ConcreteBricks RandomConcreteBricks = new ComponentNTMFeatures.ConcreteBricks();
 		
+		public NTMRuin1() {
+			super();
+		}
+		
 		protected NTMRuin1(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 8, 6, 10);
 		}
@@ -838,6 +857,10 @@ public class ComponentNTMFeatures {
 		
 		private static ComponentNTMFeatures.ConcreteBricks RandomConcreteBricks = new ComponentNTMFeatures.ConcreteBricks();
 		
+		public NTMRuin2() {
+			super();
+		}
+		
 		protected NTMRuin2(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 7, 5, 10);
 		}
@@ -901,6 +924,10 @@ public class ComponentNTMFeatures {
 		
 		private static ComponentNTMFeatures.ConcreteBricks RandomConcreteBricks = new ComponentNTMFeatures.ConcreteBricks();
 		
+		public NTMRuin3() {
+			super();
+		}
+		
 		protected NTMRuin3(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 8, 3, 10);
 		}
@@ -958,6 +985,10 @@ public class ComponentNTMFeatures {
 		
 		private static ComponentNTMFeatures.ConcreteBricks RandomConcreteBricks = new ComponentNTMFeatures.ConcreteBricks();
 		
+		public NTMRuin4() {
+			super();
+		}
+		
 		protected NTMRuin4(Random rand, int minX, int minY, int minZ) {
 			super(rand, minX, minY, minZ, 10, 2, 11);
 		}
@@ -993,7 +1024,7 @@ public class ComponentNTMFeatures {
 			this.fillWithBlocks(world, box, featureSizeX, 0, 5, featureSizeX, 1, 5, ModBlocks.concrete_pillar, Blocks.air, false); //Back Wall Pt. 2
 			this.fillWithRandomizedBlocks(world, box, 6, 0, 5, featureSizeX - 1, 0, 5, false, rand, RandomConcreteBricks);
 			this.fillWithRandomizedBlocks(world, box, 6, 1, 5, 6, 1, 5, false, rand, RandomConcreteBricks);
-			this.fillWithRandomizedBlocks(world, box, featureSizeX + 1, 1, 5, featureSizeX + 1, 1, 5, false, rand, RandomConcreteBricks);
+			this.fillWithRandomizedBlocks(world, box, featureSizeX - 1, 1, 5, featureSizeX + 1, 1, 5, false, rand, RandomConcreteBricks);
 			this.fillWithBlocks(world, box, featureSizeX, 0, featureSizeZ, featureSizeX, 1, featureSizeZ, ModBlocks.concrete_pillar, Blocks.air, false); //Right Wall Pt. 2
 			this.fillWithRandomizedBlocks(world, box, featureSizeX, 0, 6, featureSizeX, 0, featureSizeZ - 1, false, rand, RandomConcreteBricks);
 			this.fillWithRandomizedBlocks(world, box, featureSizeX, 1, 6, featureSizeX, 1, featureSizeZ - 3, false, rand, RandomConcreteBricks);
@@ -1022,6 +1053,10 @@ public class ComponentNTMFeatures {
 		/** Average height? */
 		protected int hpos = -1;
 		
+		
+		protected Feature() {
+			super(0);
+		}
 		
 		protected Feature(Random rand, int minX, int minY, int minZ, int maxX, int maxY, int maxZ ) {
 			super(0);

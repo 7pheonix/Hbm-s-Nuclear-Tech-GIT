@@ -335,6 +335,7 @@ public class HazardRegistry {
 		HazardSystem.register(new ItemStack(pellet_rtg_depleted, 1, DepletedRTGMaterial.NEPTUNIUM.ordinal()), makeData(RADIATION, np237 * rtg));
 		
 		HazardSystem.register(pile_rod_uranium, makeData(RADIATION, u * billet * 3));
+		HazardSystem.register(pile_rod_pu239, makeData(RADIATION, !GeneralConfig.enable528 ? purg * billet + pu239 * billet + u * billet : purg * billet + pu239 * billet + wst * billet));
 		HazardSystem.register(pile_rod_plutonium, makeData(RADIATION, !GeneralConfig.enable528 ? purg * billet * 3 : purg * billet * 2 + wst * billet));
 		HazardSystem.register(pile_rod_source, makeData(RADIATION, rabe * billet * 3));
 		
@@ -449,8 +450,8 @@ public class HazardRegistry {
 		HazardSystem.register(man_explosive8, makeData(EXPLOSIVE, 16F));
 		
 		HazardSystem.register(gadget_core, makeData(RADIATION, pu239 * nugget * 10));
-		HazardSystem.register(boy_target, makeData(RADIATION, u235 * nugget * 9));
-		HazardSystem.register(boy_bullet, makeData(RADIATION, u235 * nugget * 6));
+		HazardSystem.register(boy_target, makeData(RADIATION, u235 * ingot * 2));
+		HazardSystem.register(boy_bullet, makeData(RADIATION, u235 * ingot));
 		HazardSystem.register(man_core, makeData(RADIATION, pu239 * nugget * 10));
 		HazardSystem.register(mike_core, makeData(RADIATION, u238 * nugget * 10));
 		HazardSystem.register(tsar_core, makeData(RADIATION, pu239 * nugget * 15));
