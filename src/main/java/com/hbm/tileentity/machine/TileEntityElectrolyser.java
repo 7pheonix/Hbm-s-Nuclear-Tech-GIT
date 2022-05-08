@@ -136,7 +136,7 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	}
 	
 	private void updateTanks() {
-		//FluidType type = tanks[0].getTankType();
+		ElectrolysisRecipes.
 		
 	}
 

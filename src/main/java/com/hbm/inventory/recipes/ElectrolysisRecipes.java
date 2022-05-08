@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.hbm.items.ModItems;
 import com.hbm.util.Tuple.Pair;
 import com.hbm.util.Tuple.Triplet;
+import com.hbm.util.WeightedRandomObject;
 
 import static com.hbm.inventory.OreDictManager.*;
 
@@ -18,15 +19,15 @@ import net.minecraft.item.ItemStack;
 public class ElectrolysisRecipes {
 	
 	private static HashMap<Object, Object[]> oreRecipes = new HashMap();
-	private static HashMap<FluidStack, Triplet<FluidStack, FluidStack, ItemStack>> fluidRecipes = new HashMap();
+	private static HashMap<FluidType, Object[]> fluidRecipes = new HashMap();
 	
 	public static void registerFluidRecipes() {
 		
-		fluidRecipes.put(new FluidStack(Fluids.WATER, 1000), new Triplet(
-			new FluidStack(Fluids.OXYGEN, 100),
-			new FluidStack(Fluids.HYDROGEN, 100),
-			new ItemStack(ModItems.dust, 1)
-		));
+		fluidRecipes.put(Fluids.WATER, new Object[] {
+			new FluidStack(Fluids.OXYGEN, 10),
+			new FluidStack(Fluids.HYDROGEN, 10),
+			new Pair(new ItemStack(ModItems.dust), 0.05F)
+		});
 		
 	}
 	
@@ -53,5 +54,10 @@ public class ElectrolysisRecipes {
 			//instead of using a name string, automatically jam together an unlocalised name using the name of the enum entry
 			this.colour = colour;
 		}
+	}
+	
+	public Pair<FluidStack, FluidStack> getFluids(FluidType type) {
+		Object[] outputs = fluidRecipes.get(type);
+		return new Pair(outputs[0], outputs[1]);
 	}
 }
