@@ -95,6 +95,14 @@ public class AssemblerRecipes {
 		
 		if(stack != null && stack.getItem() instanceof ItemAssemblyTemplate) {
 			
+			ComparableStack comp = ItemAssemblyTemplate.readType(stack);
+			
+			//NEW
+			if(comp != null) {
+				return comp.toStack();
+			}
+			
+			//LEGACY
 			int i = stack.getItemDamage();
 			if(i >= 0 && i < recipeList.size()) {
 				return recipeList.get(i).toStack();
@@ -108,8 +116,15 @@ public class AssemblerRecipes {
 		
 		if(stack != null && stack.getItem() instanceof ItemAssemblyTemplate) {
 			
-			int i = stack.getItemDamage();
+			//NEW
+			ComparableStack compStack = ItemAssemblyTemplate.readType(stack);
+			if(compStack != null) {
+				AStack[] ret = recipes.get(compStack);
+				return Arrays.asList(ret);
+			}
 			
+			//LEGACY
+			int i = stack.getItemDamage();
 			if(i >= 0 && i < recipeList.size()) {
 				ItemStack out = recipeList.get(i).toStack();
 				
@@ -765,12 +780,12 @@ public class AssemblerRecipes {
 		makeRecipe(new ComparableStack(ModBlocks.machine_deuterium_extractor, 1), new AStack[] {
 				new ComparableStack(ModItems.deuterium_filter, 1),
 				new ComparableStack(ModItems.sulfur, 12),
-				new OreDictStack(STEEL.plate(), 8),
-				new OreDictStack(AL.plate(), 4),
-				new ComparableStack(ModItems.pipes_steel),
-				new ComparableStack(ModItems.board_copper, 2),
+				new OreDictStack(STEEL.plate(), 4),
+				new OreDictStack(AL.plate(), 2),
+				new ComparableStack(ModBlocks.deco_pipe_quad, 4),
+				new ComparableStack(ModItems.board_copper, 1),
 				new ComparableStack(ModItems.turbine_titanium, 2),
-				new ComparableStack(ModItems.circuit_aluminium, 3)
+				new ComparableStack(ModItems.circuit_aluminium, 2)
 			}, 100);
 		
 		makeRecipe(new ComparableStack(ModBlocks.machine_chemfac, 1), new AStack[] {

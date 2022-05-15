@@ -29,6 +29,7 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.AdvancedModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.net.URI;
 import java.util.HashMap;
@@ -210,6 +211,7 @@ public class ClientProxy extends ServerProxy {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineMiningDrill.class, new RenderMiningDrill());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineMiningLaser.class, new RenderLaserMiner());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineAssembler.class, new RenderAssembler());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineAssemfac.class, new RenderAssemfac());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineChemplant.class, new RenderChemplant());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineChemfac.class, new RenderChemfac());
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityMachineFluidTank.class, new RenderFluidTank());
@@ -627,6 +629,7 @@ public class ClientProxy extends ServerProxy {
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartCrate.class, new RenderMinecart());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartDestroyer.class, new RenderNeoCart());
 		RenderingRegistry.registerEntityRenderingHandler(EntityMinecartOre.class, new RenderNeoCart());
+		RenderingRegistry.registerEntityRenderingHandler(EntityMagnusCartus.class, new RenderMagnusCartus());
 		//items
 		RenderingRegistry.registerEntityRenderingHandler(EntityMovingItem.class, new RenderMovingItem());
 		RenderingRegistry.registerEntityRenderingHandler(EntityTNTPrimedBase.class, new RenderTNTPrimedBase());
@@ -1502,6 +1505,12 @@ public class ClientProxy extends ServerProxy {
 				fx.setBaseScale(data.getFloat("base"));
 				fx.setMaxScale(data.getFloat("max"));
 				fx.setLife(data.getInteger("life") / (particleSetting + 1));
+				
+				if(data.hasKey("color")) {
+					Color color = new Color(data.getInteger("color"));
+					fx.setRBGColorF(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F);
+				}
+				
 				Minecraft.getMinecraft().effectRenderer.addEffect(fx);
 			}
 		}
