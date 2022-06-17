@@ -983,7 +983,6 @@ public class MainRegistry {
 		SolidificationRecipes.register();
 		ElectrolysisRecipes.registerOreRecipes();
 		ElectrolysisRecipes.registerFluidRecipes();
-		FuelPoolRecipes.register();
 
 		//the good stuff
 		SerializableRecipe.registerAllHandlers();
