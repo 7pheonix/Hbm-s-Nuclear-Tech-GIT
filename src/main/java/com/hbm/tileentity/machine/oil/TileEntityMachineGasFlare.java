@@ -2,18 +2,20 @@ package com.hbm.tileentity.machine.oil;
 
 import java.util.List;
 
-import com.hbm.entity.particle.EntityGasFlameFX;
 import com.hbm.interfaces.IControlReceiver;
 import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.interfaces.IFluidContainer;
 import com.hbm.inventory.FluidTank;
+import com.hbm.inventory.UpgradeManager;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.inventory.fluid.FluidType.FluidTrait;
 import com.hbm.inventory.fluid.types.FluidTypeFlammable;
+import com.hbm.items.machine.ItemMachineUpgrade.UpgradeType;
 import com.hbm.lib.Library;
 import com.hbm.main.MainRegistry;
 import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbm.util.ParticleUtil;
 
 import api.hbm.energy.IEnergyGenerator;
 import api.hbm.fluid.IFluidStandardReceiver;
@@ -35,7 +37,7 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 	public boolean doesBurn = false;
 
 	public TileEntityMachineGasFlare() {
-		super(4);
+		super(6);
 		tank = new FluidTank(Fluids.GAS, 64000, 0);
 	}
 
@@ -49,6 +51,8 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 		super.readFromNBT(nbt);
 		this.power = nbt.getLong("powerTime");
 		tank.readFromNBT(nbt, "gas");
+		isOn = nbt.getBoolean("isOn");
+		doesBurn = nbt.getBoolean("doesBurn");
 	}
 
 	@Override
@@ -56,6 +60,8 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 		super.writeToNBT(nbt);
 		nbt.setLong("powerTime", power);
 		tank.writeToNBT(nbt, "gas");
+		nbt.setBoolean("isOn", isOn);
+		nbt.setBoolean("doesBurn", doesBurn);
 	}
 
 	public long getPowerScaled(long i) {
@@ -93,12 +99,22 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 			tank.loadTank(1, 2, slots);
 			tank.updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
 			
+			int maxVent = 50;
+			int maxBurn = 10;
+			
 			if(isOn && tank.getFill() > 0) {
+				
+				UpgradeManager.eval(slots, 4, 5);
+				int burn = Math.min(UpgradeManager.getLevel(UpgradeType.SPEED), 3);
+				int yield = Math.min(UpgradeManager.getLevel(UpgradeType.EFFECT), 3);
+
+				maxVent += maxVent * burn;
+				maxBurn += maxBurn * burn;
 				
 				if(!doesBurn || !(tank.getTankType() instanceof FluidTypeFlammable)) {
 					
 					if(tank.getTankType().traits.contains(FluidTrait.GASEOUS)) {
-						int eject = Math.min(10, tank.getFill());
+						int eject = Math.min(maxVent, tank.getFill());
 						tank.setFill(tank.getFill() - eject);
 						tank.getTankType().onFluidRelease(this, tank, eject);
 						
@@ -107,16 +123,24 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 					}
 				} else {
 					
-					if(tank.getTankType().traits.contains(FluidTrait.GASEOUS) && tank.getTankType() instanceof FluidTypeFlammable) {
-						int eject = Math.min(10, tank.getFill());
+					if(tank.getTankType() instanceof FluidTypeFlammable) {
+						int eject = Math.min(maxBurn, tank.getFill());
 						tank.setFill(tank.getFill() - eject);
-						power += ((FluidTypeFlammable) tank.getTankType()).getHeatEnergy() * eject / 2_000; // divided by 1000 per mB and 2 for the 50% penalty
+						
+						int penalty = 2;
+						if(!tank.getTankType().traits.contains(FluidTrait.GASEOUS))
+							penalty = 10;
+						
+						long powerProd = ((FluidTypeFlammable) tank.getTankType()).getHeatEnergy() * eject / 1_000; // divided by 1000 per mB
+						powerProd /= penalty;
+						powerProd += powerProd * yield / 3;
+						
+						power += powerProd;
 						
 						if(power > maxPower)
 							power = maxPower;
 						
-						worldObj.spawnEntityInWorld(new EntityGasFlameFX(worldObj, this.xCoord + 0.5F, this.yCoord + 11.75F, this.zCoord + 0.5F,
-								worldObj.rand.nextGaussian() * 0.15, 0.2, worldObj.rand.nextGaussian() * 0.15));
+						ParticleUtil.spawnGasFlame(worldObj, this.xCoord + 0.5F, this.yCoord + 11.75F, this.zCoord + 0.5F, worldObj.rand.nextGaussian() * 0.15, 0.2, worldObj.rand.nextGaussian() * 0.15);
 						
 						List<Entity> list = worldObj.getEntitiesWithinAABB(Entity.class, AxisAlignedBB.getBoundingBox(xCoord - 1, yCoord + 12, zCoord - 2, xCoord + 2, yCoord + 17, zCoord + 2));
 						for(Entity e : list) {
@@ -142,24 +166,43 @@ public class TileEntityMachineGasFlare extends TileEntityMachineBase implements 
 			
 			if(isOn && tank.getFill() > 0) {
 							
-				if(!doesBurn || !(tank.getTankType() instanceof FluidTypeFlammable)) {
-
-					if(tank.getTankType().traits.contains(FluidTrait.GASEOUS)) {
+				if((!doesBurn || !(tank.getTankType() instanceof FluidTypeFlammable)) && tank.getTankType().traits.contains(FluidTrait.GASEOUS)) {
 						
-						NBTTagCompound data = new NBTTagCompound();
-						data.setString("type", "tower");
-						data.setFloat("lift", 1F);
-						data.setFloat("base", 0.25F);
-						data.setFloat("max", 3F);
-						data.setInteger("life", 150 + worldObj.rand.nextInt(20));
-						data.setInteger("color", tank.getTankType().getColor());
+					NBTTagCompound data = new NBTTagCompound();
+					data.setString("type", "tower");
+					data.setFloat("lift", 1F);
+					data.setFloat("base", 0.25F);
+					data.setFloat("max", 3F);
+					data.setInteger("life", 150 + worldObj.rand.nextInt(20));
+					data.setInteger("color", tank.getTankType().getColor());
 
-						data.setDouble("posX", xCoord + 0.5);
-						data.setDouble("posZ", zCoord + 0.5);
-						data.setDouble("posY", yCoord + 11);
+					data.setDouble("posX", xCoord + 0.5);
+					data.setDouble("posZ", zCoord + 0.5);
+					data.setDouble("posY", yCoord + 11);
 						
-						MainRegistry.proxy.effectNT(data);
+					MainRegistry.proxy.effectNT(data);
+					
+				}
+				
+				if(doesBurn && tank.getTankType() instanceof FluidTypeFlammable && MainRegistry.proxy.me().getDistanceSq(xCoord, yCoord + 10, zCoord) <= 1024) {
+					
+					NBTTagCompound data = new NBTTagCompound();
+					data.setString("type", "vanillaExt");
+					data.setString("mode", "smoke");
+					data.setBoolean("noclip", true);
+					data.setInteger("overrideAge", 50);
+
+					if(worldObj.getTotalWorldTime() % 2 == 0) {
+						data.setDouble("posX", xCoord + 1.5);
+						data.setDouble("posZ", zCoord + 1.5);
+						data.setDouble("posY", yCoord + 10.75);
+					} else {
+						data.setDouble("posX", xCoord + 1.125);
+						data.setDouble("posZ", zCoord - 0.5);
+						data.setDouble("posY", yCoord + 11.75);
 					}
+					
+					MainRegistry.proxy.effectNT(data);
 				}
 			}
 		}

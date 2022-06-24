@@ -37,6 +37,8 @@ public class ItemMachineUpgrade extends Item {
 			list.add("Delay -" + (15 * this.tier) + "% / Consumption +" + (300 * this.tier) + "HE/t");
 			list.add(EnumChatFormatting.RED + "Laser Miner:");
 			list.add("Delay ÷" + (1 + this.tier) + " / Consumption +" + (625 * this.tier) + "HE/t");
+			list.add(EnumChatFormatting.RED + "Electric Furnace:");
+			list.add("Delay -" + (25 * this.tier) + "% / Consumption +" + (50 * this.tier) + "HE/t");
 			list.add(EnumChatFormatting.RED + "Assembly Machine:");
 			list.add("Delay -" + (25 * this.tier) + "% / Consumption +" + (300 * this.tier) + "HE/t");
 			list.add(EnumChatFormatting.RED + "Chemical Plant:");
@@ -46,6 +48,8 @@ public class ItemMachineUpgrade extends Item {
 			list.add(EnumChatFormatting.RED + "Crystallizer:");
 			list.add("Delay -" + (20 * this.tier) + "% / Consumption +" + (1000 * this.tier) + "HE/t");
 			list.add(EnumChatFormatting.RED + "Cyclotron:");
+			list.add("Speed x" + (1 + this.tier));
+			list.add(EnumChatFormatting.RED + "Flare Stack:");
 			list.add("Speed x" + (1 + this.tier));
 			list.add(EnumChatFormatting.RED + "Maxwell:");
 			list.add("Damage +" + (0.25 * (double)this.tier) + "dmg/t");
@@ -58,6 +62,8 @@ public class ItemMachineUpgrade extends Item {
 			list.add("+" + (5 * this.tier) + "% chance of not consuming an item / Acid consumption +" + (1000 * this.tier) + "mB");
 			list.add(EnumChatFormatting.RED + "Cyclotron:");
 			list.add("-" + (100 - 100 / (this.tier + 1)) + "% chance of incrementing overheat counter");
+			list.add(EnumChatFormatting.RED + "Flare Stack:");
+			list.add("+" + (100 * this.tier / 3) + "% power production");
 			list.add(EnumChatFormatting.RED + "Maxwell:");
 			list.add("Range +" + (3 * this.tier) + "m");
 		}
@@ -65,6 +71,8 @@ public class ItemMachineUpgrade extends Item {
 		if(this.type == UpgradeType.POWER) {
 			list.add(EnumChatFormatting.RED + "Mining Drill:");
 			list.add("Consumption -" + (30 * this.tier) + "HE/t / Delay +" + (5 * this.tier) + "%");
+			list.add(EnumChatFormatting.RED + "Electric Furnace:");
+			list.add("Consumption -" + (15 * this.tier) + "HE/t / Delay +" + (10 * this.tier) + "%");
 			list.add(EnumChatFormatting.RED + "Assembly Machine:");
 			list.add("Consumption -" + (30 * this.tier) + "HE/t / Delay +" + (5 * this.tier) + "%");
 			list.add(EnumChatFormatting.RED + "Chemical Plant:");

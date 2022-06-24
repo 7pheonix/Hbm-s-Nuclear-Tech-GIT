@@ -137,7 +137,7 @@ public class Fluids {
 		GAS =				new FlammableOilGas(		"GAS",				0xfffeed, 1, 4, 1, EnumSymbol.NONE).setHeatEnergy(10_000);
 		PETROLEUM = 		new FlammableOilGas(		"PETROLEUM",		0x7cb7c9, 1, 4, 1, EnumSymbol.NONE).setHeatEnergy(25_000);
 		LPG =				new Fuel(					"LPG",				0x4747EA, 1, 3, 1, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 450_000).setHeatEnergy(200_000);
-		BIOGAS =			new FlammableOilGas(		"BIOGAS",			0xbfd37c, 1, 4, 1, EnumSymbol.NONE);
+		BIOGAS =			new FlammableOilGas(		"BIOGAS",			0xbfd37c, 1, 4, 1, EnumSymbol.NONE).setHeatEnergy(25_000);
 		BIOFUEL =			new Fuel(					"BIOFUEL",			0xeef274, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 400_000).setHeatEnergy(150_000).addContainers(0x9EB623, ExtContainer.CANISTER);
 		NITAN =				new Fuel(					"NITAN",			0x8018ad, 2, 4, 1, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 5_000_000).setHeatEnergy(2_000_000).addContainers(0x6B238C, ExtContainer.CANISTER);
 		UF6 =				new RadioactiveGas(			"UF6",				0xD1CEBE, 4, 0, 2, EnumSymbol.RADIATION).addTraits(FluidTrait.CORROSIVE);
@@ -155,10 +155,10 @@ public class Fluids {
 		BALEFIRE =			new FluidType(				"BALEFIRE",			0x28e02e, 4, 4, 3, EnumSymbol.RADIATION).setTemp(1500).addTraits(FluidTrait.CORROSIVE);
 		MERCURY =			new FluidType(				"MERCURY",			0x808080, 2, 0, 0, EnumSymbol.NONE);
 		PAIN =				new FluidType(				"PAIN",				0x938541, 2, 0, 1, EnumSymbol.ACID).setTemp(300).addTraits(FluidTrait.CORROSIVE);
-		WASTEFLUID =		new RadioactiveLiquid(		"WASTEFLUID",		0x544400, 2, 0, 1, EnumSymbol.RADIATION).addTraits(FluidTrait.NO_CONTAINER);
-		WASTEGAS =			new RadioactiveGas(			"WASTEGAS",			0xB8B8B8, 2, 0, 1, EnumSymbol.RADIATION).addTraits(FluidTrait.NO_CONTAINER);
+		WASTEFLUID =		new RadioactiveLiquid(		"WASTEFLUID",		0x544400, 2, 0, 1, EnumSymbol.RADIATION).setRadiation(0.5F).addTraits(FluidTrait.NO_CONTAINER);
+		WASTEGAS =			new RadioactiveGas(			"WASTEGAS",			0xB8B8B8, 2, 0, 1, EnumSymbol.RADIATION).setRadiation(0.5F).addTraits(FluidTrait.NO_CONTAINER);
 		GASOLINE =			new Fuel(					"GASOLINE",			0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 1_000_000).setHeatEnergy(400_000).addContainers(0x2F7747, ExtContainer.CANISTER);
-		COALGAS =			new Fuel(					"COALGAS",			0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 150_000).setHeatEnergy(75_000);
+		COALGAS =			new Fuel(					"COALGAS",			0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 150_000).setHeatEnergy(75_000).addContainers(0x2E155F, ExtContainer.CANISTER);
 		SPENTSTEAM =		new Gas(					"SPENTSTEAM",		0x445772, 2, 0, 0, EnumSymbol.NONE).addTraits(FluidTrait.NO_CONTAINER).setCompression(1D);
 		FRACKSOL =			new Petrochemical(			"FRACKSOL",			0x798A6B, 1, 3, 3, EnumSymbol.ACID).addTraits(FluidTrait.CORROSIVE).addContainers(0x4F887F, ExtContainer.CANISTER);
 		PLASMA_DT =			new FluidType(				"PLASMA_DT",		0xF7AFDE, 0, 4, 0, EnumSymbol.RADIATION).setTemp(3250).addTraits(FluidTrait.NO_CONTAINER, FluidTrait.NO_ID);
@@ -183,9 +183,9 @@ public class Fluids {
 		SALIENT =			new FluidType(				"SALIENT",			0x457F2D, 0, 0, 0, EnumSymbol.NONE);
 		XPJUICE =			new FluidType(				"XPJUICE",			0xBBFF09, 0, 0, 0, EnumSymbol.NONE);
 		ENDERJUICE =		new FluidType(				"ENDERJUICE",		0x127766, 0, 0, 0, EnumSymbol.NONE);
-		PETROIL_LEADED =	new Fuel(					"PETROIL_LEADED",	0x44413d, 1, 3, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 450_000).setHeatEnergy(((FluidTypeFlammable)PETROIL).getHeatEnergy());
-		GASOLINE_LEADED =	new Fuel(					"GASOLINE_LEADED",	0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 1_500_000).setHeatEnergy(((FluidTypeFlammable)GASOLINE).getHeatEnergy());
-		COALGAS_LEADED =	new Fuel(					"COALGAS_LEADED",	0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 250_000).setHeatEnergy(((FluidTypeFlammable)COALGAS).getHeatEnergy());
+		PETROIL_LEADED =	new Fuel(					"PETROIL_LEADED",	0x44413d, 1, 3, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 450_000).setHeatEnergy(((FluidTypeFlammable)PETROIL).getHeatEnergy()).addContainers(0x2331F6, ExtContainer.CANISTER);
+		GASOLINE_LEADED =	new Fuel(					"GASOLINE_LEADED",	0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.HIGH, 1_500_000).setHeatEnergy(((FluidTypeFlammable)GASOLINE).getHeatEnergy()).addContainers(0x2F775A, ExtContainer.CANISTER);
+		COALGAS_LEADED =	new Fuel(					"COALGAS_LEADED",	0x445772, 1, 2, 0, EnumSymbol.NONE).setCombustionEnergy(FuelGrade.MEDIUM, 250_000).setHeatEnergy(((FluidTypeFlammable)COALGAS).getHeatEnergy()).addContainers(0x1E155F, ExtContainer.CANISTER);
 		SULFURIC_ACID =		new FluidType(				"SULFURIC_ACID",	0xB0AA64, 3, 0, 2, EnumSymbol.ACID).addTraits(FluidTrait.CORROSIVE);
 		COOLANT_HOT =		new FluidType(				"COOLANT_HOT",		0x99525E, 1, 0, 0, EnumSymbol.NONE).setTemp(600).setHeatCap(COOLANT.heatCap);
 		MUG =				new FluidType(				"MUG",				0x4B2D28, 0, 0, 0, EnumSymbol.NONE).setHeatCap(1D);

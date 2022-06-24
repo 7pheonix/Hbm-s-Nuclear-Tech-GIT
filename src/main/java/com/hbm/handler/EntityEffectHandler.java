@@ -83,8 +83,9 @@ public class EntityEffectHandler {
 		handleRadiation(entity);
 		handleDigamma(entity);
 		handleLungDisease(entity);
-		
+
 		handleDashing(entity);
+		handlePlinking(entity);
 	}
 	
 	private static void handleContamination(EntityLivingBase entity) {
@@ -516,6 +517,17 @@ public class EntityEffectHandler {
 				props.setStamina(stamina);
 			}	
 					
+		}
+	}
+	
+	private static void handlePlinking(Entity entity) {
+		
+		if(entity instanceof EntityPlayer) {
+			EntityPlayer player = (EntityPlayer)entity;
+			HbmPlayerProps props = HbmPlayerProps.getData(player);
+			
+			if(props.plinkCooldown > 0)
+				props.plinkCooldown--;
 		}
 	}
 }

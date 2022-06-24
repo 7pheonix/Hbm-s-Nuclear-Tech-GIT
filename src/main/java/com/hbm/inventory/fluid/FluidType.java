@@ -13,6 +13,7 @@ import com.hbm.render.util.EnumSymbol;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 
 public class FluidType {
 
@@ -157,7 +158,11 @@ public class FluidType {
 	 * @param tank
 	 * @param overflowAmount
 	 */
-	public void onFluidRelease(TileEntity te, FluidTank tank, int overflowAmount) { }
+	public void onFluidRelease(TileEntity te, FluidTank tank, int overflowAmount) {
+		this.onFluidRelease(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, tank, overflowAmount);
+	}
+	
+	public void onFluidRelease(World world, int x, int y, int z, FluidTank tank, int overflowAmount) { }
 	//public void onFluidTransmit(FluidNetwork net) { }
 	
 	public void addInfo(List<String> info) {
@@ -174,12 +179,12 @@ public class FluidType {
 		if(traits.contains(FluidTrait.NO_CONTAINER)) info.add(EnumChatFormatting.RED + "Cannot be stored in any universal tank");
 		if(traits.contains(FluidTrait.LEAD_CONTAINER)) info.add(EnumChatFormatting.YELLOW + "Requires hazardous material tank to hold");
 
-		info.add("");
+		/*info.add("");
 		info.add(EnumChatFormatting.RED + "[DEBUG]");
 		
 		for(FluidTrait trait : traits) {
 			info.add(EnumChatFormatting.RED + "-" + trait.name());
-		}
+		}*/
 	}
 	
 	/**
