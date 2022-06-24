@@ -30,6 +30,12 @@ public class GUIElectrolyser extends GuiInfoContainer {
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float f) {
 		super.drawScreen(mouseX, mouseY, f);
+		
+		electrolyser.tanks[0].renderTankInfo(this, mouseX, mouseY, guiLeft + 42, guiTop + 18, 16, 52);
+		electrolyser.tanks[1].renderTankInfo(this, mouseX, mouseY, guiLeft + 96, guiTop + 18, 16, 52);
+		electrolyser.tanks[2].renderTankInfo(this, mouseX, mouseY, guiLeft + 116, guiTop + 18, 16, 52);
+		
+		this.drawElectricityInfo(this, mouseX, mouseY, guiLeft + 186, guiTop + 18, 240, 90, electrolyser.power, electrolyser.maxPower);
 	}
 	
 	protected void mouseClicked(int x, int y, int i) {
@@ -45,8 +51,8 @@ public class GUIElectrolyser extends GuiInfoContainer {
 		int i = (int)((electrolyser.power * 89) / electrolyser.maxPower);
 		drawTexturedModalRect(guiLeft + 186, guiTop + 107 - i, 240, 90 - i, 16, i);
 		
-		int j = (int)((electrolyser.progressFluid * 40) / electrolyser.maxProgress);
-		drawTexturedModalRect(guiLeft + 62, guiTop + 26, 228, 0, 12, j);
+		if(i > 0)
+			drawTexturedModalRect(guiLeft + 190, guiTop + 4, 240, 90, 9, 12);
 		
 		int k = (int)((electrolyser.progressOre * 27) / electrolyser.maxProgress);
 		drawTexturedModalRect(guiLeft + 5, guiTop + 112, 213, 40, 27, k);
@@ -54,43 +60,27 @@ public class GUIElectrolyser extends GuiInfoContainer {
 		int niter = (int)((electrolyser.niterTank * 34) / electrolyser.maxNiter);
 		drawTexturedModalRect(guiLeft + 37, guiTop + 120 - niter, 240, 148 - niter, 16, niter);
 		
+		electrolyser.tanks[0].renderTank(guiLeft + 42, guiTop + 70, this.zLevel, 16, 52);
+		electrolyser.tanks[1].renderTank(guiLeft + 96, guiTop + 70, this.zLevel, 16, 52);
+		electrolyser.tanks[2].renderTank(guiLeft + 116, guiTop + 70, this.zLevel, 16, 52);
+		
+		Minecraft.getMinecraft().getTextureManager().bindTexture(texture);
+		
 		Metals[] tanks = {electrolyser.primaryMetal, electrolyser.secondaryMetal};
 		int[] fill = {electrolyser.primaryMetalTank, electrolyser.secondaryMetalTank};
 		for(int x = 0; x < 2; x++) {
-			int height = 36;//(int)((fill[x] * 42) / electrolyser.maxMetal);
+			int height = (int)((fill[x] * 42) / electrolyser.maxMetal);
 			int colour = tanks[x].colour;
 			drawTexturedModalRect(guiLeft + 60 + x*38, guiTop + 128 - height, 222, 190 - height, 34, height);
 			
-			//drawRectangle(5, 5, 50, 50, colour);
-			/*GL11.glDisable(GL11.GL_CULL_FACE);
-			GL11.glEnable(GL11.GL_BLEND);
-			GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE);
-			
-			Tessellator tess = Tessellator.instance;
-			tess.startDrawingQuads();
-			tess.setColorRGBA_I(colour, 0xFFFFFF)
-			tess.addVertex(left + sizeX, top, this.zLevel);
-			tess.addVertex(left, top, this.zLevel);
-			tess.addVertex(left, top + sizeY, this.zLevel);
-			tess.addVertex(left + sizeX, top + sizeY, this.zLevel);
-			tess.draw();*/
 			if(height > 18) {
 				drawRectangle(78+x*38, 110, 16, 18, colour);
 				drawRectangle(60+x*38, 110-(height-18), 34, height-18, colour);
 			} else {
 				drawRectangle(78 + x*38, 128-height, 16, height, colour);
 			}
-			/*GL11.glDisable(GL11.GL_TEXTURE_2D);
-			drawRect(guiLeft+50, guiTop+50, guiLeft+55, guiTop+55, 0xFFFFFF);
-			GL11.glEnable(GL11.GL_TEXTURE_2D);
-			
-			GL11.glDisable(GL11.GL_BLEND);
-			GL11.glEnable(GL11.GL_CULL_FACE);
-			*/
 		}
 		
-		if(i > 0)
-			drawTexturedModalRect(guiLeft + 190, guiTop + 4, 240, 90, 9, 12);
 	}
 	
 	@Override

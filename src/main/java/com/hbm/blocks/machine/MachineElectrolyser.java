@@ -21,7 +21,7 @@ public class MachineElectrolyser extends BlockDummyable {
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
 		if(meta >= 12) return new TileEntityElectrolyser();
-		if(meta >= 6) return new TileEntityProxyCombo(false, true, true);
+		if(meta >= 6) return new TileEntityProxyCombo(true, true, true);
 		return null;
 	}
 

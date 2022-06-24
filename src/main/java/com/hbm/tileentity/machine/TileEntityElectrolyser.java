@@ -6,12 +6,16 @@ import java.util.List;
 import com.hbm.blocks.BlockDummyable;
 import com.hbm.interfaces.IFluidAcceptor;
 import com.hbm.interfaces.IFluidSource;
+import com.hbm.interfaces.Spaghetti;
+import com.hbm.inventory.FluidStack;
 import com.hbm.inventory.FluidTank;
 import com.hbm.inventory.UpgradeManager;
 import com.hbm.inventory.fluid.FluidType;
 import com.hbm.inventory.fluid.Fluids;
 import com.hbm.lib.Library;
 import com.hbm.tileentity.TileEntityMachineBase;
+import com.hbm.util.Tuple.Pair;
+import com.hbm.inventory.recipes.ElectrolysisRecipes;
 import com.hbm.inventory.recipes.ElectrolysisRecipes.*;
 import com.hbm.items.ModItems;
 import com.hbm.items.machine.ItemMachineUpgrade.UpgradeType;
@@ -21,6 +25,8 @@ import static com.hbm.inventory.recipes.ElectrolysisRecipes.Metals.*;
 import api.hbm.energy.IEnergyUser;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -29,13 +35,11 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	
 	public long power;
 	public static final long maxPower = 20000000;
-	public static final int usageBase = 10000;
+	public static final int usageBase = 1000;
 	public int usage;
 	
 	public static final int maxProgress = 1000;
-	public int progressFluid;
-	public static final int processFluidTimeBase = 500;
-	public int processFluidTime;
+	public static final int processFluidTactRate = 500;
 	public int progressOre;
 	public static final int processOreTimeBase = 1000;
 	public int processOreTime;
@@ -52,6 +56,11 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	public int niterTank;
 	
 	public FluidTank[] tanks;
+	List<IFluidAcceptor>[] lists = new List[] {
+			new ArrayList(), new ArrayList(), new ArrayList(), new ArrayList()
+		};
+	
+	public static final int[] slot_io = new int[] {11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23};
 
 	public TileEntityElectrolyser() {
 		super(24);
@@ -65,13 +74,30 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	public String getName() {
 		return "container.machineElectrolyser";
 	}
+	
+	@Override
+	public boolean isItemValidForSlot(int i, ItemStack itemStack) {
+		
+		if(i == 15 && itemStack.getItem() == ModItems.niter)
+			return true;
+		
+		return i == 14;
+	}
+
+	@Override
+	public int[] getAccessibleSlotsFromSide(int side) {
+		return slot_io;
+	}
+
 
 	@Override
 	public void updateEntity() {
 
 		if(!worldObj.isRemote) {
 			
-			this.tanks[0].updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
+			for(byte x = 0; x < 3; x++) {
+				this.tanks[x].updateTank(xCoord, yCoord, zCoord, worldObj.provider.dimensionId);
+			}
 			
 			ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset);
 			ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
@@ -84,26 +110,27 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			
 			UpgradeManager.eval(slots, 1, 2);
 			int speed = Math.min(UpgradeManager.getLevel(UpgradeType.SPEED), 3);
-			int power = Math.min(UpgradeManager.getLevel(UpgradeType.POWER), 3);
+			/*int power = Math.min(UpgradeManager.getLevel(UpgradeType.POWER), 3);
 			int effect = Math.min(UpgradeManager.getLevel(UpgradeType.EFFECT), 3);
 
-			this.processFluidTime = processFluidTimeBase - (processFluidTimeBase / 4) * speed;
+			//this.processFluidTime = processFluidTimeBase - (processFluidTimeBase / 4) * speed;
 			this.processOreTime = processOreTimeBase - (processOreTimeBase / 4) * speed;
 			this.usage = usageBase - (usageBase / 4) * power;
-			this.effectMultiplier = 1 + (effect*0.2F);
+			this.effectMultiplier = 1 + (effect*0.2F);*/
 			
 			tanks[0].setType(3, 4, slots);
-			tanks[0].loadTank(5, 5, slots);
+			tanks[0].loadTank(5, 6, slots);
 			tanks[1].unloadTank(7, 8, slots);
 			tanks[2].unloadTank(9, 10, slots);
 			
 			updateTanks();
 			
+			if(worldObj.getTotalWorldTime() % (20-(speed * 4)) == 0)
+				doFluidProcessingCycle();
+			
 			if(slots[15] != null) {
 				if(slots[15].getItem() == ModItems.niter && maxNiter - niterTank >= 100) {
-					niterTank += 100;
-					System.out.println(niterTank);
-					//slots[9] = slots[9].splitStack(slots[9].stackSize - 1);
+					niterTank += 500;
 					this.decrStackSize(15, 1);
 				}
 			}
@@ -113,12 +140,13 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 				niterTank = maxNiter;
 			}
 			
+			fillFluidInit(tanks[1].getTankType());
+			fillFluidInit(tanks[2].getTankType());
+			
 			NBTTagCompound data = new NBTTagCompound();
 			data.setLong("power", this.power);
-			data.setInteger("progressFluid", progressFluid);
 			data.setInteger("progressOre", progressOre);
 			data.setInteger("usage", usage);
-			data.setInteger("processFluidTime", processFluidTime);
 			data.setInteger("processOreTime", processOreTime);
 			
 			data.setInteger("primaryMetalTank", primaryMetalTank);
@@ -126,17 +154,62 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 			data.setInteger("secondaryMetalTank", secondaryMetalTank);
 			data.setString("secondaryMetal", secondaryMetal.toString());
 			
+			data.setInteger("niterTank", niterTank);
+			
 			data.setFloat("effectMultiplier", effectMultiplier);
 			this.networkPack(data, 50);
 			
-			fillFluidInit(tanks[1].getTankType());
-			fillFluidInit(tanks[2].getTankType());
 		}
 
 	}
 	
 	private void updateTanks() {
+		Pair outputs = ElectrolysisRecipes.getFluidTypes(tanks[0].getTankType());
+		if(outputs == null) {
+			for(byte i = 0; i < 3; i ++) {
+				tanks[i].setTankType(Fluids.NONE);
+			}
+			return;
+		}
+		tanks[1].setTankType((FluidType)outputs.getKey());
+		tanks[2].setTankType((FluidType)outputs.getValue());
+	}
+	
+	@Spaghetti("that was fast")
+	private void doFluidProcessingCycle() {
 		
+		Object[] outs = ElectrolysisRecipes.getFluidOutputs(tanks[0].getTankType());
+		
+		if(outs == null)
+			return;
+		
+		Pair inputData = (Pair)outs[0];
+		if(tanks[0].getFill() >= (int)inputData.getKey() && power >= (int)inputData.getValue()) {
+			if(!(outs[1] instanceof FluidStack) || outs[1] == null || !(outs[2] instanceof FluidStack) || outs[2] == null) {
+				return;
+			} else {
+				if((tanks[1].getMaxFill() - tanks[1].getFill()) >= ((FluidStack)outs[1]).fill && (tanks[2].getMaxFill() - tanks[2].getFill()) >= ((FluidStack)outs[2]).fill) {
+					tanks[0].setFill(tanks[0].getFill() - (int)inputData.getKey());
+					tanks[1].setFill(tanks[1].getFill() + ((FluidStack)outs[1]).fill);
+					tanks[2].setFill(tanks[2].getFill() + ((FluidStack)outs[2]).fill);
+					power -= (int)inputData.getValue();
+					for(byte i = 3; i < outs.length; i++) {
+						if(outs[i] instanceof Pair) {
+							if(((Pair)outs[i]).getKey() instanceof ItemStack && ((Pair)outs[i]).getValue() instanceof Float) {
+								ItemStack item = (ItemStack)((Pair)outs[i]).getKey();
+								float chance = (float)((Pair)outs[i]).getValue();
+								if(worldObj.rand.nextInt((int)(1F / chance)) == 0) {
+									if(slots[8+i] == null)
+										slots[8+i] = item.copy();
+									else
+										slots[8+i].stackSize++;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -145,11 +218,11 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		ForgeDirection dir = ForgeDirection.getOrientation(this.getBlockMetadata() - BlockDummyable.offset);
 		ForgeDirection rot = dir.getRotation(ForgeDirection.UP);
 
-		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * -1, getTact(), type);
-		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + dir.offsetZ * 5 + rot.offsetZ * 1, getTact(), type);
-
+		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * 1, yCoord, zCoord + rot.offsetZ * 1 + dir.offsetZ * 5, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * 5 + rot.offsetX * -1, yCoord, zCoord + rot.offsetZ * -1 + dir.offsetZ * 5, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * 1, yCoord, zCoord + rot.offsetZ * 1 + dir.offsetZ * -5, getTact(), type);
+		fillFluid(xCoord + dir.offsetX * -5 + rot.offsetX * -1, yCoord, zCoord + rot.offsetZ * -1 + dir.offsetZ * -5, getTact(), type);
+		
 	}
 	
 	AxisAlignedBB bb = null;
@@ -159,12 +232,12 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		
 		if(bb == null) {
 			bb = AxisAlignedBB.getBoundingBox(
-					xCoord - 3,
-					yCoord - 0,
-					zCoord - 5,
-					xCoord + 3,
-					yCoord + 4,
-					zCoord + 5
+					xCoord - 3 - 0.5,
+					yCoord - 0 - 0.5,
+					zCoord - 5 - 0.5,
+					xCoord + 3 + 0.5,
+					yCoord + 4 + 0.5,
+					zCoord + 5 + 0.5
 					);
 		}
 		
@@ -174,16 +247,16 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	@Override
 	public void networkUnpack(NBTTagCompound nbt) {
 		this.power = nbt.getLong("power");
-		this.progressFluid = nbt.getInteger("progressFluid");
 		this.progressOre = nbt.getInteger("progressOre");
 		this.usage = nbt.getInteger("usage");
-		this.processFluidTime = nbt.getInteger("processFluidTime");
 		this.processOreTime = nbt.getInteger("processOreTime");
 		
 		this.primaryMetalTank = nbt.getInteger("primaryMetalTank");
 		this.primaryMetal = Metals.valueOf(nbt.getString("primaryMetal"));
 		this.secondaryMetalTank = nbt.getInteger("secondaryMetalTank");
 		this.secondaryMetal = Metals.valueOf(nbt.getString("secondaryMetal"));
+		
+		this.niterTank = nbt.getInteger("niterTank");
 		
 		this.effectMultiplier = nbt.getFloat("effectMultiplier");
 	}
@@ -194,6 +267,20 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		for(int i = 0; i < 3; i++) {
 			tanks[i].readFromNBT(nbt, "tank"+(char)i);
 		}
+		
+		this.power = nbt.getLong("power");
+		this.progressOre = nbt.getInteger("progressOre");
+		this.usage = nbt.getInteger("usage");
+		this.processOreTime = nbt.getInteger("processOreTime");
+		
+		this.primaryMetalTank = nbt.getInteger("primaryMetalTank");
+		this.primaryMetal = Metals.valueOf(nbt.getString("primaryMetal"));
+		this.secondaryMetalTank = nbt.getInteger("secondaryMetalTank");
+		this.secondaryMetal = Metals.valueOf(nbt.getString("secondaryMetal"));
+		
+		this.niterTank = nbt.getInteger("niterTank");
+		
+		this.effectMultiplier = nbt.getFloat("effectMultiplier"); 
 	}
 	
 	@Override
@@ -202,6 +289,20 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 		for(int i = 0; i < 3; i++) {
 			tanks[i].writeToNBT(nbt, "tank"+(char)i);
 		}
+		
+		nbt.setLong("power", this.power);
+		nbt.setInteger("progressOre", progressOre);
+		nbt.setInteger("usage", usage);
+		nbt.setInteger("processOreTime", processOreTime);
+		
+		nbt.setInteger("primaryMetalTank", primaryMetalTank);
+		nbt.setString("primaryMetal", primaryMetal.toString());
+		nbt.setInteger("secondaryMetalTank", secondaryMetalTank);
+		nbt.setString("secondaryMetal", secondaryMetal.toString());
+		
+		nbt.setInteger("niterTank", niterTank);
+		
+		nbt.setFloat("effectMultiplier", effectMultiplier);
 	}
 	
 	@Override
@@ -244,7 +345,7 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	@Override
 	public int getFluidFill(FluidType type) {
 		for(int i = 0; i < 3; i++) {
-			if(type == tanks[i].getTankType() && tanks[i].getFill() != 0)
+			if(type == tanks[i].getTankType())
 				return tanks[i].getFill();
 		}
 		return 0;
@@ -253,7 +354,7 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 	@Override
 	public int getMaxFluidFill(FluidType type) {
 		for(int i = 0; i < 3; i++) {
-			if(type == tanks[i].getTankType() && tanks[i].getMaxFill() != 0)
+			if(type == tanks[i].getTankType())
 				return tanks[i].getMaxFill();
 		}
 		return 0;
@@ -266,17 +367,29 @@ public class TileEntityElectrolyser extends TileEntityMachineBase implements IEn
 
 	@Override
 	public boolean getTact() {
-		return worldObj.getTotalWorldTime() % 20 < 10;
+		return worldObj.getTotalWorldTime() % 2 == 0;
 	}
 
 	@Override
 	public List<IFluidAcceptor> getFluidList(FluidType type) {
-		return new ArrayList<IFluidAcceptor>();
+		
+		for(int i = 0; i < tanks.length; i++) {
+			if(tanks[i].getTankType() == type) {
+				return lists[i];
+			}
+		}
+		
+		return new ArrayList();
 	}
 
 	@Override
 	public void clearFluidList(FluidType type) {
-		return;
+		
+		for(int i = 0; i < tanks.length; i++) {
+			if(tanks[i].getTankType() == type) {
+				lists[i].clear();
+			}
+		}
 	}
 
 	@Override
